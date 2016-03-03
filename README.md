@@ -1,2 +1,1 @@
-# Hanover_Flipdot
-Python code to drive Hanover's flipdot displays
+# Python driver for Flipdot destination signs
