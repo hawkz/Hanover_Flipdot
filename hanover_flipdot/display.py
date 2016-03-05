@@ -2,6 +2,8 @@
 
 import serial
 import time
+import sys
+from simulator import *
 
 class Display(object):
     '''
@@ -9,7 +11,7 @@ class Display(object):
     Currently, this driver only works with resolution of 128x16, at address 1
     This limitation must be changed in a future version.
     '''
-    def __init__(self, serial, font, debug=False):
+    def __init__(self, serial, font, debug=False, simulator=False):
         self.port = serial
         # Header part
         self.header = [0x2, 0x31, 0x31, 0x30, 0x30]
@@ -19,8 +21,12 @@ class Display(object):
         self.buf = [0x30] * 512
         # Font buffer
         self.font = font
-
+        # Debug flag
         self.DEBUG = debug
+        # Simulator switch
+        self.SIMULATOR = simulator
+        if self.SIMULATOR:
+            self.sim = Simulator()
 
         self.connect()
 
@@ -28,13 +34,17 @@ class Display(object):
         '''
         Connect to the serial device
         '''
-        try:
-            self.ser = serial.Serial(port=self.port, baudrate=4800)
-        except:
-            print "Error opening serial port"
-            self.ser = None
-        if self.DEBUG:
-            print "Serial port:", self.ser
+        if not self.SIMULATOR:
+            try:
+                self.ser = serial.Serial(port=self.port, baudrate=4800)
+            except:
+                print sys.exc_info()
+                print "Error opening serial port"
+                self.ser = None
+            if self.DEBUG:
+                print "Serial port:", self.ser
+        elif self.DEBUG:
+            print "Simulator instance", self.sim
 
 
     def set_font(self, font):
@@ -204,18 +214,21 @@ class Display(object):
         if self.DEBUG:
             print self.header, self.buf, self.footer
             print ""
+        if not self.SIMULATOR:
+            try:
+                # Send the header
+                for byte in self.header:
+                    self.ser.write(chr(byte))
+                # Send the data
+                for byte in self.buf:
+                    self.ser.write(chr(byte))
+                # Send the footer
+                for byte in self.footer:
+                    self.ser.write(chr(byte))
 
-        try:
-            # Send the header
-            for byte in self.header:
-                self.ser.write(chr(byte))
-            # Send the data
-            for byte in self.buf:
-                self.ser.write(chr(byte))
-            # Send the footer
-            for byte in self.footer:
-                self.ser.write(chr(byte))
-
+                return 0
+            except:
+                return -1
+        else:
+            self.sim.display(self.buf)
             return 0
-        except:
-            return -1
