@@ -2,7 +2,7 @@
 
 class Simulator(object):
     def __init__(self):
-        pass
+        print "\033[2J"
 
     def display(self, frame):
         # Parse each column
@@ -25,6 +25,6 @@ class Simulator(object):
 
                 for k in range(7, -1, -1):
                     if byte & (1 << (k)):
-                        print "\033[%d;%dH0"%((8*j)+k+1, i+1)
+                        print "\033[%d;%dH0"%((8*j)+k+3, i+2)
                     else:
-                        print "\033[%d;%dH "%((8*j)+k+1, i+1)
+                        print "\033[%d;%dH "%((8*j)+k+3, i+2)
