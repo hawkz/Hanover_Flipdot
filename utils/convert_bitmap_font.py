@@ -49,3 +49,4 @@ print fontname + " = ["
 for char in final:
     print "    "+str(char)+","
 print "]"
+print ""
