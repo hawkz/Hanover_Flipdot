@@ -2,7 +2,7 @@
 # See the LICENSE file for the full license.
 
 name = "hanover_flipdot"
-version = "1.0"
+version = "0.0.1"
 description = "A Python library for controlling Hanover flipdot displays"
 license = "MIT"
 author = "Paul RATHGEB"
