@@ -101,6 +101,8 @@ class Display(object):
                 byte += 3
                 idx+= 2
             column += 1
+            if column > 15:
+                break
 
     def write_second_line(self, text, column=0):
         '''
@@ -123,6 +125,8 @@ class Display(object):
                 byte += 3
                 idx+= 2
             column += 1
+            if column > 15:
+                break
 
     def write_center(self, text, column=0):
         '''
@@ -148,6 +152,8 @@ class Display(object):
                 byte += 1
                 idx+= 2
             column += 1
+            if column > 15:
+                break
 
     def byte_to_ascii(self, byte):
         '''
