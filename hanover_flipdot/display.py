@@ -4,6 +4,11 @@ import serial
 import time
 
 class Display(object):
+    '''
+    Driver for the Hanover display.
+    Currently, this driver only works with resolution of 128x16, at address 1
+    This limitation must be changed in a future version.
+    '''
     def __init__(self, serial, font, debug=False):
         self.port = serial
         # Header part
@@ -19,10 +24,10 @@ class Display(object):
 
         self.connect()
 
-    '''
-    Connect to the serial device
-    '''
     def connect(self):
+        '''
+        Connect to the serial device
+        '''
         try:
             self.ser = serial.Serial(port=self.port, baudrate=4800)
         except:
@@ -32,41 +37,41 @@ class Display(object):
             print "Serial port:", self.ser
 
 
-    '''
-    Set a font
-    '''
     def set_font(self, font):
+        '''
+        Set a font
+        '''
         self.font = font
 
-    '''
-    Erase the first line
-    '''
     def erase_first_line(self):
+        '''
+        Erase the first line
+        '''
         if self.DEBUG:
             print "Erasing first line"
         write_first_line("                ")
 
-    '''
-    Erase the second line
-    '''
     def erase_second_line(self):
+        '''
+        Erase the second line
+        '''
         if self.DEBUG:
             print "Erasing second line"
         write_second_line("                ")
 
-    '''
-    Erase all the screen
-    '''
     def erase_all(self):
+        '''
+        Erase all the screen
+        '''
         if self.DEBUG:
             print "Erasing all"
         for i in range(512):
             self.buf[i] = 0x30
 
-    '''
-    Write text on the first line
-    '''
     def write_first_line(self, text, column=0):
+        '''
+        Write text on the first line
+        '''
         # Check for length integrity
         if len(text) > 16:
             return -1
@@ -87,10 +92,10 @@ class Display(object):
                 idx+= 2
             column += 1
 
-    '''
-    Write text on the second line
-    '''
     def write_second_line(self, text, column=0):
+        '''
+        Write text on the second line
+        '''
         if len(text) > 16:
             return -1
 
@@ -109,10 +114,10 @@ class Display(object):
                 idx+= 2
             column += 1
 
-    '''
-    Write text on the center of the screen
-    '''
     def write_center(self, text, column=0):
+        '''
+        Write text on the center of the screen
+        '''
         if len(text) > 16:
             return -1
 
@@ -134,14 +139,14 @@ class Display(object):
                 idx+= 2
             column += 1
 
-    '''
-    Convert a byte to its ascii reprensentation.
-    The transmission represent each byte by their ASCII representation.
-    For example, 0x67 is reprensented by 0x36 0x37 (ascii 6 and ascii 7)
-    This is not an elegant way to convert the data, and this function must
-    be refactored
-    '''
     def byte_to_ascii(self, byte):
+        '''
+        Convert a byte to its ascii reprensentation.
+        The transmission represent each byte by their ASCII representation.
+        For example, 0x67 is reprensented by 0x36 0x37 (ascii 6 and ascii 7)
+        This is not an elegant way to convert the data, and this function must
+        be refactored
+        '''
         b1 = 0
         b2 = 0
         if (byte >> 4) > 9:
@@ -156,10 +161,10 @@ class Display(object):
 
         return (b1, b2)
 
-    '''
-    Compute the checksum of the data frame
-    '''
     def __checksum__(self):
+        '''
+        Compute the checksum of the data frame
+        '''
         sum = 0
         # Sum all bytes of the header and the buffer
         for byte in self.header:
@@ -188,10 +193,11 @@ class Display(object):
         if self.DEBUG:
             print "SUM : %d, CRC : %d, SUM + CRC : %d"%(sum, crc, sum+crc)
 
-    '''
-    Send the frame via the serial port
-    '''
     def send(self):
+        '''
+        Send the frame via the serial port
+        :return: Return 0 on success, -1 on errors
+        '''
         # Compute the checksum
         self.__checksum__()
 
