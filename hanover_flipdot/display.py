@@ -165,19 +165,18 @@ class Display(object):
         '''
         b1 = 0
         b2 = 0
-	b1 = byte >> 4
+        b1 = byte >> 4
         if b1 > 9:
             b1 += 0x37
         else:
             b1 += 0x30
 
-	b2 = byte % 16
+        b2 = byte % 16
         if b2 > 9:
             b2 += 0x37
         else:
             b2 += 0x30
 
-	print b1, b2
         return (b1, b2)
 
     def __checksum__(self):
@@ -203,9 +202,7 @@ class Display(object):
         crc =  (sum ^ 255) + 1
 
         # Transfor the checksum in ascii
-	print hex(crc)
         crc1, crc2 = self.byte_to_ascii(crc)
-	print hex(crc1), hex(crc2)
 
         # Add the checksum on the footer
         self.footer[1] = crc1
