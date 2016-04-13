@@ -11,14 +11,28 @@ class Display(object):
     Currently, this driver only works with resolution of 128x16, at address 1
     This limitation must be changed in a future version.
     '''
-    def __init__(self, serial, font, debug=False, simulator=False):
+    def __init__(self, serial, font, columns, lines, debug=False, simulator=False):
         self.port = serial
+
+        if lines % 8:
+            lines = lines + (8-(lines % 8))
+
+        print columns
+        self.columns = (columns / 8)-1
+        print self.columns
+
+        self.data = ((lines * columns) / 8)
+
+        res1, res2 = self.byte_to_ascii(self.data & 0xff)
+        
+        self.data = self.data * 2
+        print self.data
         # Header part
-        self.header = [0x2, 0x31, 0x31, 0x30, 0x30]
+        self.header = [0x2, 0x31, 0x31, res1, res2]
         # Footer part
         self.footer = [0x3, 0x00, 0x00]
         # Data buffer
-        self.buf = [0x30] * 512
+        self.buf = [0x30] * self.data 
         # Font buffer
         self.font = font
         # Debug flag
@@ -75,7 +89,7 @@ class Display(object):
         '''
         if self.DEBUG:
             print "Erasing all"
-        for i in range(512):
+        for i in range(self.data):
             self.buf[i] = 0x30
 
     def write_first_line(self, text, column=0):
@@ -100,9 +114,9 @@ class Display(object):
                 self.buf[(column * 32)+(byte)] = (self.font[ord(char)][idx+1])
                 byte += 3
                 idx+= 2
-            column += 1
-            if column > 15:
+            if column >= self.columns:
                 break
+            column += 1
 
     def write_second_line(self, text, column=0):
         '''
@@ -124,9 +138,9 @@ class Display(object):
                 self.buf[(column*32)+(byte)] = (self.font[ord(char)][idx+1])
                 byte += 3
                 idx+= 2
-            column += 1
-            if column > 15:
+            if column >= self.columns:
                 break
+            column += 1
 
     def write_center(self, text, column=0):
         '''
@@ -151,9 +165,9 @@ class Display(object):
                 self.buf[(column*32)+(byte)] = (self.font[ord(char)][idx])
                 byte += 1
                 idx+= 2
-            column += 1
-            if column > 15:
+            if column >= self.columns:
                 break
+            column += 1
 
     def byte_to_ascii(self, byte):
         '''
