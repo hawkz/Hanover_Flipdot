@@ -70,7 +70,7 @@ class Display(object):
         '''
         if self.DEBUG:
             print "Erasing first line"
-        write_first_line("                ")
+        self.write_first_line("                ")
 
     def erase_second_line(self):
         '''
@@ -78,7 +78,7 @@ class Display(object):
         '''
         if self.DEBUG:
             print "Erasing second line"
-        write_second_line("                ")
+        self.write_second_line("                ")
 
     def erase_all(self):
         '''
