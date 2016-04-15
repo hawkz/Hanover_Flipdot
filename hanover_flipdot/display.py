@@ -17,16 +17,13 @@ class Display(object):
         if lines % 8:
             lines = lines + (8-(lines % 8))
 
-        print columns
         self.columns = (columns / 8)-1
-        print self.columns
 
         self.data = ((lines * columns) / 8)
 
         res1, res2 = self.byte_to_ascii(self.data & 0xff)
         
         self.data = self.data * 2
-        print self.data
         # Header part
         self.header = [0x2, 0x31, 0x31, res1, res2]
         # Footer part
@@ -109,14 +106,14 @@ class Display(object):
             byte = 0
             # Fill the buffer
             for i in range(8):
-                self.buf[(column * 32)+(byte)] = (self.font[ord(char)][idx])
+                self.buf[(column * 4)+(byte)] = (self.font[ord(char)][idx])
                 byte += 1
-                self.buf[(column * 32)+(byte)] = (self.font[ord(char)][idx+1])
+                self.buf[(column * 4)+(byte)] = (self.font[ord(char)][idx+1])
                 byte += 3
                 idx+= 2
-            if column >= self.columns:
+            if column >= self.columns * 8:
                 break
-            column += 1
+            column += 8
 
     def write_second_line(self, text, column=0):
         '''
@@ -133,14 +130,14 @@ class Display(object):
             # Drop the two first bytes
             byte = 2
             for i in range(8):
-                self.buf[(column*32)+(byte)] = (self.font[ord(char)][idx])
+                self.buf[(column*4)+(byte)] = (self.font[ord(char)][idx])
                 byte += 1
-                self.buf[(column*32)+(byte)] = (self.font[ord(char)][idx+1])
+                self.buf[(column*4)+(byte)] = (self.font[ord(char)][idx+1])
                 byte += 3
                 idx+= 2
-            if column >= self.columns:
+            if column >= self.columns * 8:
                 break
-            column += 1
+            column += 8
 
     def write_center(self, text, column=0):
         '''
@@ -156,18 +153,18 @@ class Display(object):
             idx = 0
             byte = 0
             for i in range(8):
-                self.buf[(column*32)+(byte)] = (self.font[ord(char)][idx+1])
+                self.buf[(column*4)+(byte)] = (self.font[ord(char)][idx+1])
                 byte += 1
-                self.buf[(column*32)+(byte)] = 0x30
+                self.buf[(column*4)+(byte)] = 0x30
                 byte += 1
-                self.buf[(column*32)+(byte)] = 0x30
+                self.buf[(column*4)+(byte)] = 0x30
                 byte += 1
-                self.buf[(column*32)+(byte)] = (self.font[ord(char)][idx])
+                self.buf[(column*4)+(byte)] = (self.font[ord(char)][idx])
                 byte += 1
                 idx+= 2
-            if column >= self.columns:
+            if column >= self.columns * 8:
                 break
-            column += 1
+            column += 8
 
     def byte_to_ascii(self, byte):
         '''
