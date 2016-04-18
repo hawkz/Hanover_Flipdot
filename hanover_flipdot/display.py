@@ -17,7 +17,7 @@ class Display(object):
         if lines % 8:
             lines = lines + (8-(lines % 8))
 
-        self.columns = (columns / 8)-1
+        self.columns = columns - 1
 
         self.data = ((lines * columns) / 8)
 
@@ -28,7 +28,7 @@ class Display(object):
         # Footer part
         self.footer = [0x3, 0x00, 0x00]
         # Data buffer initialized to 0
-        self.buf = [0] * self.data 
+        self.buf = [0x0000] * (self.data / 2)
         # Fonts object
         self.font = font
         # Debug flag
@@ -62,22 +62,6 @@ class Display(object):
         '''
         self.font = font
 
-    def erase_first_line(self):
-        '''
-        Erase the first line
-        '''
-        if self.DEBUG:
-            print "Erasing first line"
-        self.write_first_line("                ")
-
-    def erase_second_line(self):
-        '''
-        Erase the second line
-        '''
-        if self.DEBUG:
-            print "Erasing second line"
-        self.write_second_line("                ")
-
     def erase_all(self):
         '''
         Erase all the screen
@@ -87,74 +71,22 @@ class Display(object):
         for i in range(self.data):
             self.buf[i] = 0x30
 
-    def write_first_line(self, text, column=0):
+    def write_text(self, text, line=0, column=0):
         '''
         Write text on the first line
         '''
-        # Check for length integrity
-        if len(text) > 16:
-            return -1
-
         if self.DEBUG:
             print "First line text :  ", text
 
         # Parse all the characters
         for char in text:
-            byte = 0
             # Fill the buffer
             for i in range(8):
-                self.buf[(column * 2)+(byte)] = (self.font[ord(char)][i])
-                byte += 2
-            if column >= self.columns * 8:
-                break
-            column += 8
-
-    def write_second_line(self, text, column=0):
-        '''
-        Write text on the second line
-        '''
-        if len(text) > 16:
-            return -1
-
-        if self.DEBUG:
-            print "Second line text : ", text
-
-        for char in text:
-            # Drop the two first bytes
-            byte = 1
-            for i in range(8):
-                self.buf[(column * 2)+(byte)] = (self.font[ord(char)][i])
-                byte += 2
-            if column >= self.columns * 8:
-                break
-            column += 8
-
-    def write_center(self, text, column=0):
-        '''
-        Write text on the center of the screen
-        '''
-        if len(text) > 16:
-            return -1
-
-        if self.DEBUG:
-            print "Center line text : ", text
-
-        for char in text:
-            idx = 0
-            byte = 0
-            for i in range(8):
-                self.buf[(column*4)+(byte)] = (self.font[ord(char)][idx+1])
-                byte += 1
-                self.buf[(column*4)+(byte)] = 0x30
-                byte += 1
-                self.buf[(column*4)+(byte)] = 0x30
-                byte += 1
-                self.buf[(column*4)+(byte)] = (self.font[ord(char)][idx])
-                byte += 1
-                idx+= 2
-            if column >= self.columns * 8:
-                break
-            column += 8
+                if column >= self.columns:
+                    return 0
+                self.buf[column] &= ~(0xffff & (0xff << line))
+                self.buf[column] |= ((self.font[ord(char)][i])<<line) & 0xffff
+                column += 1
 
     def byte_to_ascii(self, byte):
         '''
@@ -229,7 +161,12 @@ class Display(object):
                     self.ser.write(chr(byte))
                 # Send the data
                 for byte in self.buf:
-                    b1, b2 = self.byte_to_ascii(byte)
+                    b1, b2 = self.byte_to_ascii(byte & 0xFF)
+                    crc += b1
+                    crc += b2
+                    self.ser.write(chr(b1))
+                    self.ser.write(chr(b2))
+                    b1, b2 = self.byte_to_ascii(((byte >> 8) & 0xFF))
                     crc += b1
                     crc += b2
                     self.ser.write(chr(b1))
@@ -245,12 +182,14 @@ class Display(object):
 
                 return 0
             except:
-                print "Exception"
                 return -1
         else:
             simbuf = []
             for byte in self.buf:
-                b1, b2 = self.byte_to_ascii(byte)
+                b1, b2 = self.byte_to_ascii(byte & 0xFF)
+                simbuf.append(b2)
+                simbuf.append(b1)
+                b1, b2 = self.byte_to_ascii((byte >> 8) & 0xFF)
                 simbuf.append(b2)
                 simbuf.append(b1)
             self.sim.display(simbuf)
