@@ -81,10 +81,11 @@ class Display(object):
         # Parse all the characters
         for char in text:
             # Fill the buffer
-            for i in range(8):
+            print len(self.font[0])
+            for i in range(len(self.font[0])):
                 if column >= self.columns:
                     return 0
-                self.buf[column] &= ~(0xffff & (0xff << line))
+                self.buf[column] &= ~(0xffff)
                 self.buf[column] |= ((self.font[ord(char)][i])<<line) & 0xffff
                 column += 1
 
