@@ -13,8 +13,6 @@ fonts = []
 
 # Read the font from 0x32 (space) to 0x7F (DEL)
 for line in range(0x7F):
-    if line < 0x20:
-        pass
     fonts.append(int(f.readline().split(":")[1].rstrip("\n"), base=16))
 
 # Create a buffer for the final font
@@ -26,7 +24,7 @@ for char in fonts:
     original_char = [0x00] * 8
     # Read the char byte by byte, and reorder it
     for i in range(8):
-        original_char[i] = (char >> (64-(8*(i)))) & 0xFF
+        original_char[i] = (char >> (56-(8*(i)))) & 0xFF
 
     hanover_char = [0x00] * 8
 
