@@ -81,7 +81,6 @@ class Display(object):
         # Parse all the characters
         for char in text:
             # Fill the buffer
-            print len(self.font[0])
             for i in range(len(self.font[0])):
                 if column >= self.columns:
                     return 0
