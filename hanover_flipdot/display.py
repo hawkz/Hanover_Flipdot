@@ -84,7 +84,7 @@ class Display(object):
             for i in range(len(self.font[0])):
                 if column >= self.columns:
                     return 0
-                self.buf[column] &= ~(0xffff)
+                self.buf[column] &= ~(0xffff & (0xff << line))
                 self.buf[column] |= ((self.font[ord(char)][i])<<line) & 0xffff
                 column += 1
 
