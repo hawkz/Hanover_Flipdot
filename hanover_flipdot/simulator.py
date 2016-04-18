@@ -27,6 +27,6 @@ class Simulator(object):
 
             for k in range(15, -1, -1):
                 if byte & (1 << (k)):
-                    print "\033[%d;%dH0"%((k+1), i)
+                    print "\033[43m\033[%d;%dH \033[0m"%((k+1), i)
                 else:
-                    print "\033[%d;%dH "%((k+1), i)
+                    print "\033[100m\033[%d;%dH \033[0m"%((k+1), i)
