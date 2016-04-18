@@ -68,8 +68,8 @@ class Display(object):
         '''
         if self.DEBUG:
             print "Erasing all"
-        for i in range(self.data):
-            self.buf[i] = 0x30
+        for i in range(len(self.buf)):
+            self.buf[i] = 0
 
     def write_text(self, text, line=0, column=0):
         '''
