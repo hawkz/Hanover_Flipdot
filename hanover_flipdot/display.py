@@ -174,7 +174,6 @@ class Display(object):
         
                 # Compute the checksum
                 self.__checksum__(crc)
-                print self.footer
 
                 # Send the footer
                 for byte in self.footer:
