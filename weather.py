@@ -15,7 +15,7 @@ API_KEY = "YOUR_API_KEY"
 CITY = 'Mons'
 COUNTRY = 'be'
 
-display = display.Display("/dev/tty.wchusbserial1d1140", fonts.unscii_thin, False, True)
+display = display.Display("/dev/ttyUSB0", fonts.unscii_mcr, 128, 16, False, True)
 owm = pyowm.OWM(API_KEY)
 
 def current_weather():
@@ -23,15 +23,15 @@ def current_weather():
     w = observation.get_weather()
 
     display.erase_all()
-    display.write_first_line( "TMP: %s%sC"%(w.get_temperature('celsius')['temp'], chr(0xb0)))
-    display.write_second_line("HUM: %s%%"%w.get_humidity())
+    display.write_text( "TMP: %s C"%(w.get_temperature('celsius')['temp']), line = 0)
+    display.write_text("HUM: %s%%"%w.get_humidity(), line = 8)
     display.send()
 
 def date_time():
     display.erase_all()
     for i in range(30):
-        display.write_first_line(time.strftime("%H:%M:%S"), column = 4)
-        display.write_second_line(time.strftime("%a %d %b %Y"), column = 0)
+        display.write_text(time.strftime("%H:%M:%S"), column = 4)
+        display.write_text(time.strftime("%a %d %b %Y"), line = 8, column = 0)
         display.send()
         time.sleep(1)
 
