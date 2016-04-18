@@ -78,13 +78,20 @@ class Display(object):
         if self.DEBUG:
             print "First line text :  ", text
 
+        # Detect the size
+        mask = 0xff
+        for byte in self.font[0x31]:
+             if byte.bit_length >= 9:
+		mask = 0xffff
+                break
+
         # Parse all the characters
         for char in text:
             # Fill the buffer
             for i in range(len(self.font[0])):
                 if column >= self.columns:
                     return 0
-                self.buf[column] &= ~(0xffff & (0xff << line))
+                self.buf[column] &= ~((mask << line) & 0xffff)
                 self.buf[column] |= ((self.font[ord(char)][i])<<line) & 0xffff
                 column += 1
 
