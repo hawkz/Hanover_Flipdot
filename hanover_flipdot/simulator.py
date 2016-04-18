@@ -4,27 +4,29 @@ class Simulator(object):
     def __init__(self):
         print "\033[2J"
 
+    def __unascii__(self, byte):
+        if byte > 0x40:
+            return byte - 0x37
+        else:
+            return byte - 0x30
+
     def display(self, frame):
         # Parse each column
         for i in range(len(frame)/4):
-            # There's two time 16 bits
-            for j in range(2):
-                # Grab the two bytes
-                b1 = frame[(2*j)+(i*4)]
-                b2 = frame[(2*j)+((i*4)+1)]
-                # Combine two ASCII bytes into one hex byte
-                if b1 > 0x40:
-                    b1 -= 0x37
-                else:
-                    b1 -= 0x30
-                if b2 > 0x40:
-                    b2 -= 0x37
-                else:
-                    b2 -= 0x30
-                byte = ((b1 * 16) + b2)
+            b1 = frame[(i*4)+1]
+            b2 = frame[(i*4)+0]
+            b3 = frame[(i*4)+3]
+            b4 = frame[(i*4)+2]
+            # Combine the four ASCII bytes into one hex byte
+            b1 = self.__unascii__(b1)
+            b2 = self.__unascii__(b2)
+            b3 = self.__unascii__(b3)
+            b4 = self.__unascii__(b4)
 
-                for k in range(7, -1, -1):
-                    if byte & (1 << (k)):
-                        print "\033[%d;%dH0"%((8*j)+k+3, i+2)
-                    else:
-                        print "\033[%d;%dH "%((8*j)+k+3, i+2)
+            byte = ((b3*4096) + (b4*256) + (b1 * 16) + b2)
+
+            for k in range(15, -1, -1):
+                if byte & (1 << (k)):
+                    print "\033[%d;%dH0"%((k+1), i)
+                else:
+                    print "\033[%d;%dH "%((k+1), i)

@@ -23,14 +23,13 @@ class Display(object):
 
         res1, res2 = self.byte_to_ascii(self.data & 0xff)
         
-        self.data = self.data * 2
         # Header part
         self.header = [0x2, 0x31, 0x31, res1, res2]
         # Footer part
         self.footer = [0x3, 0x00, 0x00]
-        # Data buffer
-        self.buf = [0x30] * self.data 
-        # Font buffer
+        # Data buffer initialized to 0
+        self.buf = [0] * self.data 
+        # Fonts object
         self.font = font
         # Debug flag
         self.DEBUG = debug
@@ -38,7 +37,6 @@ class Display(object):
         self.SIMULATOR = simulator
         if self.SIMULATOR:
             self.sim = Simulator()
-
         self.connect()
 
     def connect(self):
@@ -102,15 +100,11 @@ class Display(object):
 
         # Parse all the characters
         for char in text:
-            idx = 0
             byte = 0
             # Fill the buffer
             for i in range(8):
-                self.buf[(column * 4)+(byte)] = (self.font[ord(char)][idx])
-                byte += 1
-                self.buf[(column * 4)+(byte)] = (self.font[ord(char)][idx+1])
-                byte += 3
-                idx+= 2
+                self.buf[(column * 2)+(byte)] = (self.font[ord(char)][i])
+                byte += 2
             if column >= self.columns * 8:
                 break
             column += 8
@@ -126,15 +120,11 @@ class Display(object):
             print "Second line text : ", text
 
         for char in text:
-            idx = 0
             # Drop the two first bytes
-            byte = 2
+            byte = 1
             for i in range(8):
-                self.buf[(column*4)+(byte)] = (self.font[ord(char)][idx])
-                byte += 1
-                self.buf[(column*4)+(byte)] = (self.font[ord(char)][idx+1])
-                byte += 3
-                idx+= 2
+                self.buf[(column * 2)+(byte)] = (self.font[ord(char)][i])
+                byte += 2
             if column >= self.columns * 8:
                 break
             column += 8
@@ -190,7 +180,7 @@ class Display(object):
 
         return (b1, b2)
 
-    def __checksum__(self):
+    def __checksum__(self, dsum):
         '''
         Compute the checksum of the data frame
         '''
@@ -198,8 +188,8 @@ class Display(object):
         # Sum all bytes of the header and the buffer
         for byte in self.header:
             sum += byte
-        for byte in self.buf:
-            sum += byte
+        
+        sum += dsum
 
         # Start of text (0x02) must be removed,
         # End of text (0x03) must be added
@@ -227,27 +217,41 @@ class Display(object):
         Send the frame via the serial port
         :return: Return 0 on success, -1 on errors
         '''
-        # Compute the checksum
-        self.__checksum__()
 
         if self.DEBUG:
             print self.header, self.buf, self.footer
             print ""
         if not self.SIMULATOR:
+            crc = 0
             try:
                 # Send the header
                 for byte in self.header:
                     self.ser.write(chr(byte))
                 # Send the data
                 for byte in self.buf:
-                    self.ser.write(chr(byte))
+                    b1, b2 = self.byte_to_ascii(byte)
+                    crc += b1
+                    crc += b2
+                    self.ser.write(chr(b1))
+                    self.ser.write(chr(b2))
+        
+                # Compute the checksum
+                self.__checksum__(crc)
+                print self.footer
+
                 # Send the footer
                 for byte in self.footer:
                     self.ser.write(chr(byte))
 
                 return 0
             except:
+                print "Exception"
                 return -1
         else:
-            self.sim.display(self.buf)
+            simbuf = []
+            for byte in self.buf:
+                b1, b2 = self.byte_to_ascii(byte)
+                simbuf.append(b2)
+                simbuf.append(b1)
+            self.sim.display(simbuf)
             return 0

@@ -7,11 +7,14 @@ if len(sys.argv) != 3:
     sys.exit(1)
 
 filename = sys.argv[1]
-fontname = sys.argv[2
-]
+fontname = sys.argv[2]
 f = open(filename)
 fonts = []
-for line in range(0x100):
+
+# Read the font from 0x32 (space) to 0x7F (DEL)
+for line in range(0x7F):
+    if line < 0x20:
+        pass
     fonts.append(int(f.readline().split(":")[1].rstrip("\n"), base=16))
 
 # Create a buffer for the final font
@@ -21,32 +24,25 @@ final_font = []
 for char in fonts:
     # Decompose the character byte by byte
     original_char = [0x00] * 8
-    # Put the sequence in an array
+    # Read the char byte by byte, and reorder it
     for i in range(8):
-        original_char[i] = (char >> (8*(i))) & 0xFF
+        original_char[i] = (char >> (64-(8*(i)))) & 0xFF
 
     hanover_char = [0x00] * 8
 
-    j = 7
+    j = 0
+    # Convert from line by line font to column by column
     for byte in original_char:
         for i in range(8):
             hanover_char[(i)] |= ((byte >> (7-i)) & 1) << j
-        j -= 1
+        j += 1
 
+    # Put the char in the final buffer
     final_font.append(hanover_char)
 
-
-final = []
-for font in final_font:
-    char = []
-    for i in range(8):
-        char.append(ord("%X"%(font[i] >> 4)))
-        char.append(ord("%X"%(font[i] % 16)))
-    
-    final.append(char)
-
 print fontname + " = ["
-for char in final:
-    print "    "+str(char)+","
+for char in final_font:
+    print "     [%#.2x, %#.2x, %#.2x, %#.2x, %#.2x, %#.2x, %#.2x, %#.2x],"\
+    %(char[0], char[1], char[2], char[3], char[4], char[5], char[6], char[7])
 print "]"
 print ""
