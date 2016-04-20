@@ -11,7 +11,7 @@ class Display(object):
     Currently, this driver only works with resolution of 128x16, at address 1
     This limitation must be changed in a future version.
     '''
-    def __init__(self, serial, font, columns, lines, debug=False, simulator=False):
+    def __init__(self, serial, address, columns, lines, font, debug=False, simulator=False):
         self.port = serial
 
         if lines % 8:
@@ -22,13 +22,20 @@ class Display(object):
         self.data = ((lines * columns) / 8)
 
         res1, res2 = self.byte_to_ascii(self.data & 0xff)
+
+        self.byte_per_column = lines / 8
+
+        address += 16
         
+        add1, add2 = self.byte_to_ascii(address)
         # Header part
-        self.header = [0x2, 0x31, 0x31, res1, res2]
+        self.header = [0x2, add1, add2, res1, res2]
         # Footer part
         self.footer = [0x3, 0x00, 0x00]
         # Data buffer initialized to 0
-        self.buf = [0x0000] * (self.data / 2)
+        print self.data
+        self.buf = [0] * (self.data / self.byte_per_column)
+        print len(self.buf)
         # Fonts object
         self.font = font
         # Debug flag
@@ -91,8 +98,8 @@ class Display(object):
             for i in range(len(self.font[0])):
                 if column >= self.columns:
                     return 0
-                self.buf[column] &= ~((mask << line) & 0xffff)
-                self.buf[column] |= ((self.font[ord(char)][i])<<line) & 0xffff
+                self.buf[column] &= ~((mask << line) &  (1 << ((self.byte_per_column * 8) - 1))-1)
+                self.buf[column] |= ((self.font[ord(char)][i])<<line) &  (1 << ((self.byte_per_column * 8) - 1)) - 1
                 column += 1
 
     def byte_to_ascii(self, byte):
@@ -167,17 +174,13 @@ class Display(object):
                 for byte in self.header:
                     self.ser.write(chr(byte))
                 # Send the data
-                for byte in self.buf:
-                    b1, b2 = self.byte_to_ascii(byte & 0xFF)
-                    crc += b1
-                    crc += b2
-                    self.ser.write(chr(b1))
-                    self.ser.write(chr(b2))
-                    b1, b2 = self.byte_to_ascii(((byte >> 8) & 0xFF))
-                    crc += b1
-                    crc += b2
-                    self.ser.write(chr(b1))
-                    self.ser.write(chr(b2))
+                for col in self.buf:
+                    for i in range(self.byte_per_column):
+                        b1, b2 = self.byte_to_ascii((col >> (8*i) & 0xFF))
+                        crc += b1
+                        crc += b2
+                        self.ser.write(chr(b1))
+                        self.ser.write(chr(b2))
         
                 # Compute the checksum
                 self.__checksum__(crc)
