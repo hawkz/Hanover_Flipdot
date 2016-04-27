@@ -89,17 +89,17 @@ class Display(object):
         mask = 0xff
         for byte in self.font[0x31]:
              if byte.bit_length >= 9:
-		mask = 0xffff
+                mask = 0xffff
                 break
 
         # Parse all the characters
         for char in text:
             # Fill the buffer
             for i in range(len(self.font[0])):
-                if column >= self.columns:
+                if column > self.columns:
                     return 0
-                self.buf[column] &= ~((mask << line) &  (1 << ((self.byte_per_column * 8) - 1))-1)
-                self.buf[column] |= ((self.font[ord(char)][i])<<line) &  (1 << ((self.byte_per_column * 8) - 1)) - 1
+                self.buf[column] &= ~((mask << line) & (1 << (self.byte_per_column * 8))) -1
+                self.buf[column] |= ((self.font[ord(char)][i])<<line) &  (1 << (self.byte_per_column * 8)) - 1
                 column += 1
 
     def byte_to_ascii(self, byte):
