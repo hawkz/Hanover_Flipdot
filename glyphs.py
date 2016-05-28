@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import numpy as np
-
 five = {}
 
 five[' '] = [[0],
@@ -120,10 +118,10 @@ five['R'] = [[1, 1, 1, 0],
              [1, 0, 0, 1]]
 
 five['S'] = [[0, 1, 1, 0],
-             [1, 0, 0, 1],
+             [1, 0, 0, 0],
              [0, 1, 1, 0],
              [0, 0, 0, 1],
-             [1, 1, 1, 0]]
+             [0, 1, 1, 0]]
 
 five['T'] = [[1, 1, 1],
              [0, 1, 0],
@@ -174,6 +172,7 @@ five['0'] = [[1, 1, 1],
              [1, 1, 1]]
 
 five['1'] = [[1],
+             [1],
              [1],
              [1],
              [1]]
@@ -403,6 +402,11 @@ ten[' '] = [[0],
             [0],
             [0],
             [0],
+            [0],
+            [0],
+            [0],
+            [0],
+            [0],
             [0]]
 
 ten['A'] = [[0, 1, 1, 1, 1, 0],
@@ -417,7 +421,7 @@ ten['A'] = [[0, 1, 1, 1, 1, 0],
             [1, 1, 0, 0, 1, 1]]
 
 ten['B'] = [[1, 1, 1, 1, 1, 0],
-            [1, 1, 1, 0, 1, 1],
+            [1, 1, 1, 1, 1, 1],
             [1, 1, 0, 0, 1, 1],
             [1, 1, 0, 0, 1, 1],
             [1, 1, 1, 1, 1, 1],
@@ -1111,22 +1115,37 @@ ten['*'] = [[0, 0, 1, 0, 0],
             [0, 0, 0, 0, 0]]
 
 
-def glify(text, font=five, debug=False):
+# import time
 
-    if font == five:
-        output = ([[], [], [], [], []])
-    else:
-        output = ([[], [], [], [], [], [], [], [], [], []])
+# container = list()
+# print time.strftime("%H:%M")
+# for row in glify('Hey tuesday'.upper() + ' '*13 + str(time.strftime("%H:%M")), five):
+#     tmp = list()
+#     for item in row:
+#         tmp.append(str(int(item)))
 
-    for char in text:
-        a = np.array(font[char])
-        output = np.concatenate((output, a), axis=1)
-        a = np.array(font[' '])
-        output = np.concatenate((output, a), axis=1)
+#     tmp = ''.join(tmp).ljust(96, '0')
+#     tmp += '\n'
+#     container.append(''.join(tmp))
 
-    if debug:
-        print(output)
+# container.append(('0'*96) + '\n')
 
-    return output
+# for row in glify('Lets Dance!'.upper(), ten):
+#     tmp = list()
+#     for item in row:
+#         tmp.append(str(int(item)))
 
-glify('ABCDE', tens, True)
+#     tmp = ''.join(tmp).ljust(96, '0')
+#     tmp += '\n'
+#     container.append(''.join(tmp))
+
+
+# while len(container) < 16:
+#     container.append(('0'*96) + '\n')
+
+# print(container)
+
+# container = ''.join(container)
+# container = container.replace('0', '-')
+# container = container.replace('1', '#')
+
