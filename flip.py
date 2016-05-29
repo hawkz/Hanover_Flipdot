@@ -5,7 +5,10 @@ import os
 import numpy as np
 import time
 from glyphs import five, ten
+from flask import Flask
 
+
+app = Flask(__name__)
 np.set_printoptions(threshold='nan', linewidth=200)
 MAXWIDTH = 96
 MAXHEIGHT = 16
@@ -106,16 +109,38 @@ def convert(flippy):
     return flippy
 
 
+@app.route('/topic/<text>')
+def topic(text, f=flippy):
+    f = place(f, tiny(text), (0, 0))
+    f = place(f, clock(), (-1, 0), True)
+    display_refactored.main(convert(f))
+    return text
+
+
+@app.route('/say/<text>')
+def say(text, f=flippy):
+    f = place(f, huge(text), (0, 6))
+    f = place(f, clock(), (-1, 0), True)
+    display_refactored.main(convert(f))
+    return text
+
+
+@app.route('/clock/')
+def tick(f=flippy):
+    f = place(f, clock(), (-1, 0), True)
+
+
 if __name__ == '__main__':
     import display_refactored
+    app.run(host='::', port=80, debug=True)
 
     # x = MAXWIDTH
     while True:
         flippy = erase(flippy)
         flippy = place(flippy, tiny('hello from bmo'), (0, 0))
-        flippy = place(flippy, huge('Nearly live'), (x, 6))
+        flippy = place(flippy, huge('Nearly live'), (0, 6))
         flippy = place(flippy, clock(), (-1, 0), True)
-        #print(convert(flippy))
+        # print(convert(flippy))
         time.sleep(1)
         # x -= 1
         # if x == -1 * (huge('Who wants to play video games? ABCDEFGHIJKLMNOPQRSTUVWXYZ 01234567890').shape[1]):
