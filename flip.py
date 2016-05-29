@@ -109,16 +109,16 @@ def convert(flippy):
 if __name__ == '__main__':
     import display_refactored
 
-    x = MAXWIDTH
+    # x = MAXWIDTH
     while True:
         flippy = erase(flippy)
         flippy = place(flippy, tiny('hello from bmo'), (0, 0))
-        flippy = place(flippy, huge('Who wants to play video games? ABCDEFGHIJKLMNOPQRSTUVWXYZ 01234567890'), (x, 6))
+        flippy = place(flippy, huge('Nearly live'), (x, 6))
         flippy = place(flippy, clock(), (-1, 0), True)
         #print(convert(flippy))
-        time.sleep(0.3)
-        x -= 1
-        if x == -1 * (huge('Who wants to play video games? ABCDEFGHIJKLMNOPQRSTUVWXYZ 01234567890').shape[1]):
-            x = MAXWIDTH
+        time.sleep(1)
+        # x -= 1
+        # if x == -1 * (huge('Who wants to play video games? ABCDEFGHIJKLMNOPQRSTUVWXYZ 01234567890').shape[1]):
+        #     x = MAXWIDTH
 
         display_refactored.main(convert(flippy))
