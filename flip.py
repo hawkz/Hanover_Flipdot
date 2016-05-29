@@ -128,22 +128,12 @@ def say(text, f=flippy):
 @app.route('/clock/')
 def tick(f=flippy):
     f = place(f, clock(), (-1, 0), True)
+    display_refactored.main(convert(f))
+    return 'ok'
 
 
 if __name__ == '__main__':
     import display_refactored
     app.run(host='::', port=80, debug=True)
 
-    # x = MAXWIDTH
-    while True:
-        flippy = erase(flippy)
-        flippy = place(flippy, tiny('hello from bmo'), (0, 0))
-        flippy = place(flippy, huge('Nearly live'), (0, 6))
-        flippy = place(flippy, clock(), (-1, 0), True)
-        # print(convert(flippy))
-        time.sleep(1)
-        # x -= 1
-        # if x == -1 * (huge('Who wants to play video games? ABCDEFGHIJKLMNOPQRSTUVWXYZ 01234567890').shape[1]):
-        #     x = MAXWIDTH
 
-        display_refactored.main(convert(flippy))
