@@ -125,9 +125,24 @@ def say(text, f=flippy):
     return text
 
 
+@app.route('/raw/<text>')
+def raw(text):
+    print(text)
+    text = text.replace(' ', '')
+    display_refactored.main(text)
+    return text
+
+
 @app.route('/clock/')
 def tick(f=flippy):
     f = place(f, clock(), (-1, 0), True)
+    display_refactored.main(convert(f))
+    return 'ok'
+
+
+@app.route('/clear/')
+def clear(f=flippy):
+    f = erase(f)
     display_refactored.main(convert(f))
     return 'ok'
 
