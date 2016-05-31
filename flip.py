@@ -111,16 +111,16 @@ def convert(flippy):
 
 @app.route('/topic/<text>')
 def topic(text, f=flippy):
+    f = place(f, np.zeros((5, 96), dtype=np.int), (0, 0))
     f = place(f, tiny(text), (0, 0))
-    f = place(f, clock(), (-1, 0), True)
     display_refactored.main(convert(f))
     return text
 
 
 @app.route('/say/<text>')
 def say(text, f=flippy):
+    f = place(f, np.zeros((10, 96), dtype=np.int), (0, 6))
     f = place(f, huge(text), (0, 6))
-    f = place(f, clock(), (-1, 0), True)
     display_refactored.main(convert(f))
     return text
 
