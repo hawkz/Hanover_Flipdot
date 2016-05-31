@@ -243,7 +243,8 @@ TMP = """
 """
 
 if __name__ == '__main__':
-    from glyphs import five, ten, glify
+    from glyphs import five, ten
+    from flip import *
     import time
 
     while True:
